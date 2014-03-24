@@ -1,0 +1,6 @@
+<h2>Something went wrong...</h2>
+
+<h3><?php echo $this->exception->getMessage(); ?></h3>
+<code>
+    <?php echo nl2br($this->exception->getTraceAsString()); ?>
+</code>
