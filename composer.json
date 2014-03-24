@@ -1,0 +1,15 @@
+{
+    "require": {
+        "php": ">= 5.4.0",
+        "ext-mysqlnd": "*",
+        "ext-curl": "*",
+        "ext-memcached": "*",
+        "ext-pdo_mysql": "*",
+        "aws/aws-sdk-php": "2.*",
+        "wdalmut/simple-mvc": "*",
+        "wdalmut/simplini": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}
