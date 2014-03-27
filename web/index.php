@@ -52,5 +52,8 @@ $app->bootstrap('layout', function(){
     return $layout;
 });
 
+include __DIR__ . '/../app/events.php';
+include __DIR__ .' /../app/models.php';
+
 $app->run();
 

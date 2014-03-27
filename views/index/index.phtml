@@ -1,2 +1,23 @@
 <h2>Home Page</h2>
-<h3>Just a simple PHP Application</h3>
+<h3>A simple Book Application</h3>
+
+<p>
+    <a href="/book/add">Add a Book</a>
+</p>
+
+<hr>
+
+<ul>
+<?php if (count($this->books)) : ?>
+    <?php foreach ($this->books as $book) : ?>
+    <li>
+        <a href="/book/detail/id/<?php echo $book["id"]; ?>">
+        <?php echo $book["name"]; ?> (<?php echo $book["author"]; ?>)
+        </a>
+    </li>
+    <?php endforeach; ?>
+<?php else: ?>
+    <li>There are no books!</li>
+<?php endif; ?>
+</ul>
+
