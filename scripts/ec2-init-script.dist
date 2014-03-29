@@ -25,11 +25,19 @@ MYSQL_HOST="mysql:host=mysql.corsi.walterdalmut.com;dbname=workshop"
 MYSQL_USER="USER"
 MYSQL_PASS="PASS"
 
-BRANCH=cap7
+BRANCH=cap8
 
 # Install base services
 apt-get update
-apt-get install -y apache2 libapache2-mod-php5 php5-json php5-memcached php5-mysqlnd php5-curl git curl
+apt-get install -y build-essential apache2 libapache2-mod-php5 php5-json php5-memcached php5-mysqlnd php5-curl \
+    php-pear php5-dev git curl
+
+pecl install mysqlnd_ms
+
+MYSQL_CONF_PATH=/etc/php5/apache2/conf.d/20-mysqlnd_ms.ini
+echo "extension=mysqlnd_ms.so" >> $MYSQL_CONF_PATH
+echo "mysqlnd_ms.enable=1" >> $MYSQL_CONF_PATH
+echo "mysqlnd_ms.config_file=$OUTFOLDER/config/mysqlnd_ms_plugin.ini" >> $MYSQL_CONF_PATH
 
 # Prepare Git repository
 mkdir -p /root/.ssh
