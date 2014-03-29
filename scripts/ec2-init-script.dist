@@ -25,7 +25,7 @@ MYSQL_HOST="mysql:host=mysql.corsi.walterdalmut.com;dbname=workshop"
 MYSQL_USER="USER"
 MYSQL_PASS="PASS"
 
-BRANCH=cap8
+BRANCH=cap9
 
 # Install base services
 apt-get update

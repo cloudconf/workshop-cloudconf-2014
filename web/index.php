@@ -7,6 +7,9 @@ Loader::register();
 
 use Aws\Common\Aws;
 
+ini_set("session.save_handler", "memcached");
+ini_set("session.save_path", "1.cache.corsi.walterdalmut.com:11211,2.cache.corsi.walterdalmut.com:11211,3.cache.corsi.walterdalmut.com:11211");
+
 $app = new Application();
 $app->setControllerPath(__DIR__ . '/../src/controllers');
 
