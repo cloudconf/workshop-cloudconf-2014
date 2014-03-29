@@ -1,0 +1,7 @@
+[aws]
+key = ""
+secret = ""
+region = "eu-west-1"
+
+[s3]
+bucket = ""

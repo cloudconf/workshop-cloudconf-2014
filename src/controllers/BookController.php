@@ -44,7 +44,16 @@ class BookController extends Controller
             return null;
         }
 
-        move_uploaded_file($_FILES["picture"]["tmp_name"], $this->destination . "/{$_FILES["picture"]["name"]}");
+        $aws = $this->getResource("aws");
+        $conf = $this->getResource("awsConf");
+
+        $aws->get("s3")->putObject(array(
+            'Bucket' => $conf->s3()->bucket,
+            'Key'    => $_FILES["picture"]["name"],
+            'SourceFile'   => $_FILES["picture"]["tmp_name"],
+            'ACL'    => 'public-read',
+            'ContentType' => "image/" . pathinfo($_FILES["picture"]["name"], PATHINFO_EXTENSION),
+        ));
 
         return $_FILES["picture"]["name"];
     }
@@ -71,7 +80,13 @@ class BookController extends Controller
         }
 
         if ($book["picture"]) {
-            unlink($this->destination . "/{$book["picture"]}");
+            $aws = $this->getResource("aws");
+            $conf = $this->getResource("awsConf");
+
+            $aws->get("s3")->deleteObject([
+                'Bucket' => $conf->s3()->bucket,
+                'Key'    => $book["picture"],
+            ]);
         }
 
         $this->redirect("/", 302);
