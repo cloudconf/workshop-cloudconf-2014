@@ -1,0 +1,105 @@
+#!/bin/bash
+set -e -x
+export DEBIAN_FRONTEND=noninteractive
+export HOME="/root"
+export COMPOSER_HOME="/root"
+
+RSYSLOG_CONF=/etc/rsyslog.conf
+RSYSLOG_ADDR=l.internal.upcloo.com
+RSYSLOG_PORT=514
+
+APACHE_HOST_NAME=workshop
+APACHE_HOST=/etc/apache2/sites-available/${APACHE_HOST_NAME}.conf
+
+OUTFOLDER=/mnt/$APACHE_HOST_NAME
+AWS_CONF_FILE=$OUTFOLDER/config/aws.ini
+
+GIT_USR="USER"
+GIT_PWD="PASS"
+KEY="KEY"
+SECRET="SECRET"
+
+BUCKET="conf.corsi.walterdalmut.com"
+
+MYSQL_HOST="mysql:host=mysql.corsi.walterdalmut.com;dbname=workshop"
+MYSQL_USER="USER"
+MYSQL_PASS="PASS"
+
+BRANCH=cap7
+
+# Install base services
+apt-get update
+apt-get install -y apache2 libapache2-mod-php5 php5-json php5-memcached php5-mysqlnd php5-curl git curl
+
+# Prepare Git repository
+mkdir -p /root/.ssh
+touch /root/.ssh/config
+echo "Host github.com bitbucket.org" >> /root/.ssh/config
+echo "StrictHostKeyChecking no" >> /root/.ssh/config
+
+# Download from Github
+
+git clone -q --recursive -b $BRANCH https://$GIT_USR:$GIT_PWD@bitbucket.org/wdalmut/cloudconf-workshop-2014.git $OUTFOLDER
+
+cd $OUTFOLDER
+curl -s http://getcomposer.org/installer | /usr/bin/php
+
+/usr/bin/php composer.phar install --no-dev -o -n -d $OUTFOLDER
+
+# Create AWS conf file
+touch $AWS_CONF_FILE
+echo "[aws]"                                >> $AWS_CONF_FILE
+echo "key = $KEY"                           >> $AWS_CONF_FILE
+echo "secret = $SECRET"                     >> $AWS_CONF_FILE
+echo "region = eu-west-1"                   >> $AWS_CONF_FILE
+echo ""                                     >> $AWS_CONF_FILE
+echo "[s3]"                                 >> $AWS_CONF_FILE
+echo "bucket = $BUCKET"                     >> $AWS_CONF_FILE
+echo ""                                     >> $AWS_CONF_FILE
+echo "[rds]"                                >> $AWS_CONF_FILE
+echo "dsn = \"$MYSQL_HOST\""                >> $AWS_CONF_FILE
+echo "user = \"$MYSQL_USER\""               >> $AWS_CONF_FILE
+echo "pass = \"$MYSQL_PASS\""               >> $AWS_CONF_FILE
+
+# Create new VirtualHost
+touch $APACHE_HOST
+echo "<VirtualHost *:80>"                                                   >> $APACHE_HOST
+echo "ServerAdmin dev@upcloo.com"                                           >> $APACHE_HOST
+echo "ServerName www.corsi.walterdalmut.com"                                >> $APACHE_HOST
+echo "ServerAlias *.corsi.walterdalmut.com"                                 >> $APACHE_HOST
+echo "SetEnv APPLICATION_ENV prod"                                          >> $APACHE_HOST
+echo "DocumentRoot $OUTFOLDER/web"                                          >> $APACHE_HOST
+echo "<Directory $OUTFOLDER/web>"                                           >> $APACHE_HOST
+echo "Options -Indexes +FollowSymLinks -MultiViews"                         >> $APACHE_HOST
+echo "AllowOverride All"                                                    >> $APACHE_HOST
+echo "Require all granted"                                                  >> $APACHE_HOST
+echo "</Directory>"                                                         >> $APACHE_HOST
+echo "ErrorLog syslog:local7"                                               >> $APACHE_HOST
+echo "CustomLog \"|/usr/bin/logger -t apache2 -p local6.info\" combined"    >> $APACHE_HOST
+echo "</VirtualHost>"                                                       >> $APACHE_HOST
+
+a2ensite $APACHE_HOST_NAME
+a2dissite 000-default
+
+# Enable apache modules
+a2enmod rewrite
+a2enmod vhost_alias
+a2enmod headers
+a2enmod expires
+a2enmod deflate
+a2dismod autoindex
+a2enmod ssl
+
+service apache2 restart
+
+# Centralized rsyslog
+
+# echo "\$ModLoad imuxsock" >> $RSYSLOG_CONF # Useless
+# echo "\$ModLoad imklog" >> $RSYSLOG_CONF # Useless
+echo "*.* @$RSYSLOG_ADDR:$RSYSLOG_PORT" >> $RSYSLOG_CONF
+
+service rsyslog restart
+
+# tell the world what we've done!
+echo 'Hello world - I just executed user-data!' > /root/helloworld
+

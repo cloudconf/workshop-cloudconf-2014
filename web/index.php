@@ -32,12 +32,12 @@ $app->bootstrap('aws', function() use ($app) {
 });
 
 $app->bootstrap("db", function() use ($app) {
-    $config = $app->getBootstrap()->getResource("config");
+    $config = $app->getBootstrap()->getResource("awsConf");
 
     $pdo = new PDO(
-        $config->db()->dsn,
-        $config->db()->user,
-        $config->db()->pass
+        $config->rds()->dsn,
+        $config->rds()->user,
+        $config->rds()->pass
     );
 
     return $pdo;

@@ -5,3 +5,9 @@ region = "eu-west-1"
 
 [s3]
 bucket = ""
+
+[rds]
+dsn = "mysql:host=;dbname=workshop"
+user = ""
+pass = ""
+

@@ -2,4 +2,5 @@
 vendor
 web/images/*
 config/aws.ini
+scripts/ec2-init-script
 
