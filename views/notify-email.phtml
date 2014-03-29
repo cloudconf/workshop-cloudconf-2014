@@ -4,7 +4,6 @@
             <td>ID</th>
             <th>Book</th>
             <th>Author</th>
-            <th>&nbsp;</th>
         </tr>
     </thead>
     <tbody>
@@ -13,10 +12,6 @@
             <td><?php echo $this->book["id"]; ?></td>
             <td><?php echo $this->book["name"]; ?></td>
             <td><?php echo $this->book["author"]; ?></td>
-            <td>
-                <a href="/book/delete/id/<?php echo $this->book["id"]; ?>">Delete</a>
-                <a href="/book/notify/id/<?php echo $this->book["id"]; ?>">Notify</a>
-            </td>
         </tr>
         <?php else: ?>
         <tr>
@@ -25,9 +20,3 @@
         <?php endif; ?>
     </tbody>
 </table>
-
-<?php if ($this->book["picture"]) : ?>
-<img src="http://cdn.conf.corsi.walterdalmut.com/<?php echo $this->book["picture"]; ?>" alt="book" style="width:600px; margin-top: 10px;"/>
-<?php endif; ?>
-
-<p style="text-align: right"><a href="/">Back to Home</a></p>

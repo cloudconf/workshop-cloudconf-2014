@@ -92,4 +92,40 @@ class BookController extends Controller
 
         $this->redirect("/", 302);
     }
+
+    public function notifyAction()
+    {
+        $params = $this->getRequest()->getParams();
+
+        if (!array_key_exists("id", $params)) {
+            throw new \RuntimeException("You have to pass an id");
+        }
+
+        $id = $params["id"];
+        $book = $this->getResource("book")->get($id);
+
+        if (!$book) {
+            throw new \RuntimeException("Book not found with id: {$id}");
+        }
+
+        $view = clone $this->getResource("view");
+
+        $aws = $this->getResource("aws");
+        $result = $aws->get("Ses")->sendEmail([
+            "Source" => "no-reply@corsi.walterdalmut.com",
+            "Destination" => [
+                "ToAddresses" => ["walter.dalmut@gmail.com"],
+            ],
+            "Message" => [
+                "Subject" => ["Data" => "There is a problem with book: {$book["name"]}", "Charset" => "utf-8"],
+                "Body" => [
+                    "Text" => ["Data" => "Please, check book with name: {$book["name"]}", "Charset" => "utf-8"],
+                    "Html" => ["Data" => $view->render("notify-email.phtml", ["book" => $book]), "Charset" => "utf-8"],
+                ]
+            ],
+            "ReturnPath" => "walter.dalmut@gmail.com"
+        ]);
+
+        $this->redirect("/", 302);
+    }
 }
