@@ -53,6 +53,7 @@ class BookController extends Controller
             'SourceFile'   => $_FILES["picture"]["tmp_name"],
             'ACL'    => 'public-read',
             'ContentType' => "image/" . pathinfo($_FILES["picture"]["name"], PATHINFO_EXTENSION),
+            'CacheControl' => 14400,
         ));
 
         return $_FILES["picture"]["name"];
